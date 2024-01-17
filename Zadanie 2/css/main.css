@@ -1,0 +1,23 @@
+.column-container {
+    display: flex;
+    justify-content: space-between;
+}
+
+.column {
+    flex-basis: 33.33%;
+    padding: 15px;
+}
+
+.card {
+    background-color: #f0f0f0;
+    margin-bottom: 15px;
+    padding: 10px;
+}
+
+h2 {
+    margin-top: 0;
+}
+
+ul {
+    padding-left: 15px;
+}
