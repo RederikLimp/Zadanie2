@@ -2,12 +2,23 @@
     display: flex;
     flex-direction: row;
     justify-content: space-around;
-    list-style-type: none;
+
     height: 100%;  
     width: 100%; 
-    flex-grow:1;
     
 }
+
+.error{
+    font-weight: bolder;
+    padding: 10px 0;
+    margin: 0;
+}
+.form{
+    display: flex;
+    flex-direction: row;   
+    align-items: flex-start
+}
+
 .board{
     background-color: blue;
 }
@@ -41,5 +52,18 @@ form{
 
 label{
     padding: 10px 5px 5px 10px;
+}
+
+ul{
+    list-style-type: none;
+}
+.too-tabl{
+    display: flex;
+    flex-direction: column;
+    width: 25%;
+    align-items: center;
+    border: 1px solid rgb(249, 32, 32);
+    border-radius: 5px;
+    padding-bottom: 20px; 
 }
  
