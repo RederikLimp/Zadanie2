@@ -3,41 +3,50 @@ let eventBus = new Vue();
 Vue.component("board", {
     template: `
         <div class="board">
-        <h1>Таблица</h1>
-        <ul id="columns">
-            <li class="column">
-            <div class="form">
-                <form @submit.prevent="onSubmit">
-                <label for="name">Заголовок</label>
-                <input type="text" id="name" v-model="name">
-                <label for="point1">Пункт1</label>
-                <input type="text" id="point1" v-model="point1">
-                <label for="point2">Пункт2</label>
-                <input type="text" id="point2" v-model="point2">
-                <label for="point3">Пункт3</label>
-                <input type="text" id="point3" v-model="point3">
-                <label for="point4">Пункт4</label>
-                <input type="text" id="point4" v-model="point4">
-                <label for="point5">Пункт5</label>
-                <input type="text" id="point5" v-model="point5">
-                <button type="submit" value="Submit">Создать</button>
-                <ul class="error_tabl">
-                    <li class="error" v-for="error in errors">{{ error }}</li>
-                </ul>
-                </form>
-            </div>
-            <ul class="too-tabl">
-                <li v-for="card in column1">
-                <li v-for="card in column1"><card :name="card.name" :card_id="card.card_id" :count_of_checked=0 :points="card.points" @to-two="toColumnTwo" >   </card></li>
+            <h1>Таблица</h1>
+            <ul id="columns">
+                <li class="column">
+                    <div class="form">
+                        <form @submit.prevent="onSubmit">
+                            <label for="name">Заголовок</label>
+                            <input type="text" id="name" v-model="name">
+                            <label for="point1">Пункт1</label>
+                            <input type="text" id="point1" v-model="point1">
+                            <label for="point2">Пункт2</label>
+                            <input type="text" id="point2" v-model="point2">
+                            <label for="point3">Пункт3</label>
+                            <input type="text" id="point3" v-model="point3">
+                            <label for="point4">Пункт4</label>
+                            <input type="text" id="point4" v-model="point4">
+                            <label for="point5">Пункт5</label>
+                            <input type="text" id="point5" v-model="point5">
+                            <button type="submit" value="Submit">Создать</button>
+                            <ul class="error_tabl">
+                                <li class="error" v-for="error in errors">{{ error }}</li>
+                            </ul>
+                        </form>
+                    </div>
+                    <ul class="too-tabl">
+                        <li v-for="card in column1">
+                            <card :name="card.name" :card_id="card.card_id" :count_of_checked="0" :points="card.points" @to-two="toColumnTwo"></card>
+                        </li>
+                    </ul>
+                </li>
+                <li class="column">
+                    <ul>
+                        <li v-for="card in column2">
+                            <card :name="card.name" :card_id="card.card_id" :count_of_checked="card.count_of_checked" :points="card.points" @to-three="toColumnThree"></card>
+                        </li>
+                    </ul>
+                </li>
+                <li class="column">
+                    <ul>
+                        <li v-for="card in column3">
+                            <card :name="card.name" :card_id="card.card_id" :points="card.points" :dat="card.dat"></card>
+                        </li>
+                    </ul>
+                </li>
             </ul>
-            </li>
-            <li class="column">
-            <ul>
-            <li v-for="card in column2"><card :name="card.name" :card_id="card.card_id" :count_of_checked="card.count_of_checked" :points="card.points"  @to-three="toColumnThree"></card></li>
-        </ul>
-        </li>
-            <li class="column"></li>
-        </ul>
         </div>
     `,
     data() {
@@ -46,8 +55,6 @@ Vue.component("board", {
             column2: [],
             column3: [],
 
-            cards: [],
-
             name: null,
             point1: null,
             point2: null,
@@ -55,89 +62,92 @@ Vue.component("board", {
             point4: null,
             point5: null,
 
-            points: [],
-
             errors: [],
             card_id: 0,
-
         };
     },
     methods: {
         onSubmit() {
             this.errors = [];
-            this.points = [];
+            let points = [];
+
             if (this.point1) {
-                this.points.push([this.point1,false])
+                points.push([this.point1, false]);
             }
             if (this.point2) {
-                this.points.push([this.point2,false])
+                points.push([this.point2, false]);
             }
             if (this.point3) {
-                this.points.push([this.point3,false])
+                points.push([this.point3, false]);
             }
             if (this.point4) {
-                this.points.push([this.point4,false])
+                points.push([this.point4, false]);
             }
             if (this.point5) {
-                this.points.push([this.point5,false])
+                points.push([this.point5, false]);
             }
-            if (this.points.length < 3) {
+            
+            if (points.length < 3) {
                 this.errors.push("Должно быть заполнено от 3 пунктов");
             }
             if (!this.name) {
                 this.errors.push("Не введён заголовок");
-            }   
-            if(this.column1.length >=3){
-                console.log(this.column1.length)
-                 this.errors.push("Достигнуто максимальное число карточек")                
-                }
-            if (this.errors.length == 0) {
+            }
+            if (this.column1.length >= 3) {
+                this.errors.push("Достигнуто максимальное число карточек");
+            }
+            
+            if (this.errors.length === 0) {
                 let info = {
                     name: this.name,
-                    points: this.points,
-                    card_id: this.card_id
+                    points: points,
+                    card_id: this.card_id,
                 };
-                this.card_id +=1;   
+                this.card_id += 1;
 
                 this.column1.push(info);
                 
+                this.name = null;
+                this.point1 = null;
+                this.point2 = null;
+                this.point3 = null;
+                this.point4 = null;
+                this.point5 = null;
             }
         },
-        toColumnTwo(name,points, card_id,count_of_checked){
+        toColumnTwo(name, points, card_id, count_of_checked) {
             let info = {
-                name:name,
-                points:points,
-                card_id:card_id,
-                count_of_checked:count_of_checked
-            }
+                name: name,
+                points: points,
+                card_id: card_id,
+                count_of_checked: count_of_checked,
+            };
 
-            for(i in this.column1){
-                if(this.column1[i].card_id==card_id){
-                    this.column1.splice(i, 1)
-                    break
-                }
-
-
-            }
-
-            this.column2.push(info)
-        },
-        toColumnThree(name,points, card_id){
-            console.log("delere")
-            let info = {
-                name:name,
-                points:points,
-                card_id:card_id,
-            }
-            for(i in this.column2){
-
-                if(this.column2[i].card_id==card_id){
-                    this.column2.splice(i, 1)
-                    break
+            for (let i in this.column1) {
+                if (this.column1[i].card_id === card_id) {
+                    this.column1.splice(i, 1);
+                    break;
                 }
             }
 
-            this.column3.push(info)
+            this.column2.push(info);
+        },
+        toColumnThree(name, points, card_id) {
+            let info = {
+                name: name,
+                points: points,
+                card_id: card_id,
+                dat: new Date(),
+            };
+            
+            for (let i in this.column2) {
+                if (this.column2[i].card_id === card_id) {
+                    this.column2.splice(i, 1);
+                    break;
+                }
+            }
+
+            this.column3.push(info);
         },
     },
 });
@@ -145,10 +155,13 @@ Vue.component("board", {
 Vue.component("card", {
     template: `
         <div class="card">
-        <h3>{{ name }}</h3>
-        <ul>
-        <li v-for="point in points"><task :point="point[0]" :done="point[1]" @checked="updatechecked"></task></li>
-        </ul>
+            <h3>{{ name }}</h3>
+            <ul>
+                <li v-for="point in points">
+                    <task :point="point[0]" :done="point[1]" @checked="updatechecked"></task>
+                </li>
+            </ul>
+            <p v-if="dat">{{ dat }}</p>
         </div>
     `,
     data() {
@@ -159,83 +172,72 @@ Vue.component("card", {
     },
     methods: {
         updatechecked(point) {
-        this.count_of_checked+=1;
-        for(i in this.points){
-            if(this.points[i][0]==point && this.points[i][1] != true){
-                this.points[i][1] = true
-                break
+            for (let i in this.points) {
+                if (this.points[i][0] === point && !this.points[i][1]) {
+                    this.points[i][1] = true;
+                    break;
+                }
             }
-        }    
 
-        console.log(this.count_of_tasks)
-        console.log(this.count_of_checked)
-        if ((this.count_of_tasks) == (this.count_of_checked)){
-        this.$emit("to-three",this.name,this.points,this.card_id);
-        }
-        else if ((this.count_of_tasks/2) <= (this.count_of_checked)){
-        this.$emit("to-two",this.name,this.points,this.card_id, this.count_of_checked);
-
-        }
-    }
-    },
-    mounted() {
-
+            let count_of_checked = this.points.filter((point) => point[1]).length;
+            
+            if (count_of_checked === this.points.length) {
+                this.$emit("to-three", this.name, this.points, this.card_id);
+            } else if (count_of_checked >= this.points.length / 2) {
+                this.$emit("to-two", this.name, this.points, this.card_id, count_of_checked);
+            }
+        },
     },
     props: {
         name: {
             type: String,
-            required: false,
+            required: true,
         },
         points: {
             type: Array,
-            required: false,
+            required: true,
         },
-
-    },
-    computed: {
-        count_of_tasks() {
-          return this.points.length;
+        card_id: {
+            type: Number,
+            required: true,
+        },
+        count_of_checked: {
+            type: Number,
+            required: true,
+        },
+        dat: {
+            type: String,
+            required: false,
         },
     },
 });
 
 Vue.component("task", {
     template: `
-    <div class="task" 
-    @click="check"
-    :class="{done:done}">{{point}}</div>
+        <div class="task" 
+            @click="check"
+            :class="{done: done}">{{ point }}</div>
     `,
     data() {
-        return {
-            
-        };
+        return {};
     },
-    props:{
-        point:{
+    props: {
+        point: {
             type: String,
-            required:false,
+            required: true,
         },
-        done:{
+        done: {
             type: Boolean,
-            required:false,
+            required: false,
         },
-        card_id:{
-            type:Number,
-            required:false,
-        },
-        count_of_checked:{
-            type:Number,
-            required:false,
-        }
     },
-    methods:{
-        check(){
-            if(!this.done){
-                this.done=true
-                this.$emit("checked",this.point);
+    methods: {
+        check() {
+            if (!this.done) {
+                this.done = true;
+                this.$emit("checked", this.point);
             }
-
-        }
+        },
     },
 });
 
