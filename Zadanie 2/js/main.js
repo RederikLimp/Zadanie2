@@ -6,7 +6,7 @@ Vue.component("board", {
             <h1>Таблица</h1>
             <button class="clean" v-if="column1.length > 0" @click="Clean()">clean</button>
             <ul  id="columns">
-            <li v-if="!blockOne" class="column">
+            <li class="column">
                     <div class="form">
                         <form @submit.prevent="onSubmit">
                             <label for="name">Заголовок</label>
@@ -178,7 +178,7 @@ watch:{
             }
 
             this.column2.push(info);
-            if(this.column2.length==5){
+            if (this.column2.length == 5 && this.column1.length < 3) {
                 this.blockOne = true;
             }
         },

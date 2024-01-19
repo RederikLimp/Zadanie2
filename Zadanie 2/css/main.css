@@ -98,12 +98,12 @@ li{
 }
 
 .done{
-    text-decoration: line-through;
+    text-decoration-line: overline
 }
 
 .card{
     width: 55%;
-    border: 1px solid rgb(147, 157, 90);
+    border: 1px solid rgb(79, 248, 197);
     border-radius: 5px;
     padding-bottom: 10px;
     background-color: rgb(69, 65, 65);
