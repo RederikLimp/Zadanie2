@@ -4,8 +4,9 @@ Vue.component("board", {
     template: `
         <div class="board">
             <h1>Таблица</h1>
-            <ul id="columns">
-                <li class="column">
+            <button class="clean" v-if="column1.length > 0" @click="Clean()">clean</button>
+            <ul  id="columns">
+            <li v-if="!blockOne" class="column">
                     <div class="form">
                         <form @submit.prevent="onSubmit">
                             <label for="name">Заголовок</label>
@@ -55,6 +56,7 @@ Vue.component("board", {
             column2: [],
             column3: [],
 
+            allColumns:[],
             name: null,
             point1: null,
             point2: null,
@@ -64,8 +66,53 @@ Vue.component("board", {
 
             errors: [],
             card_id: 0,
+            blockOne:false,
         };
     },
+    mounted(){
+        if (localStorage.getItem('allColumns')) {
+              try {
+                this.allColumns = JSON.parse(localStorage.getItem('allColumns'));
+                this.column1 = this.allColumns[0]
+                this.column2 = this.allColumns[1]
+                this.column3 = this.allColumns[2]
+                this.blockOne = this.allColumns[3]
+              } catch(e) {
+                localStorage.removeItem('allColumns');
+              }
+        }
+},
+watch:{
+    column1(){
+          this.allColumns = [this.column1,this.column2,this.column3, this.blockOne]
+
+
+
+
+
+          const parsed = JSON.stringify(this.allColumns);
+          localStorage.setItem('allColumns', parsed);
+
+
+    },
+    column2(){
+          allColumns = [this.column1, this.column2, this.column3, this.blockOne]
+
+
+          const parsed = JSON.stringify(this.allColumns);
+          localStorage.setItem('allColumns', parsed);
+
+    },
+    column3(){
+          allColumns = [this.column1, this.column2, this.column3, this.blockOne]
+
+
+          const parsed = JSON.stringify(this.allColumns);
+          localStorage.setItem('allColumns', parsed);
+
+
+    },
+},  
     methods: {
         onSubmit() {
             this.errors = [];
@@ -86,7 +133,7 @@ Vue.component("board", {
             if (this.point5) {
                 points.push([this.point5, false]);
             }
-            
+
             if (points.length < 3) {
                 this.errors.push("Должно быть заполнено от 3 пунктов");
             }
@@ -96,7 +143,7 @@ Vue.component("board", {
             if (this.column1.length >= 3) {
                 this.errors.push("Достигнуто максимальное число карточек");
             }
-            
+
             if (this.errors.length === 0) {
                 let info = {
                     name: this.name,
@@ -106,7 +153,7 @@ Vue.component("board", {
                 this.card_id += 1;
 
                 this.column1.push(info);
-                
+
                 this.name = null;
                 this.point1 = null;
                 this.point2 = null;
@@ -131,6 +178,9 @@ Vue.component("board", {
             }
 
             this.column2.push(info);
+            if(this.column2.length==5){
+                this.blockOne = true;
+            }
         },
         toColumnThree(name, points, card_id) {
             let info = {
@@ -139,7 +189,7 @@ Vue.component("board", {
                 card_id: card_id,
                 dat: new Date(),
             };
-            
+
             for (let i in this.column2) {
                 if (this.column2[i].card_id === card_id) {
                     this.column2.splice(i, 1);
@@ -148,7 +198,18 @@ Vue.component("board", {
             }
 
             this.column3.push(info);
-        },
+            if(this.column2.length!=5){
+                this.blockOne =false;
+            }
+                },
+        Clean(){
+            this.column1=[],
+            this.column2=[],
+            this.column3=[],
+            this.dat=[],
+            this.blockOne= false
+
+      },
     },
 });
 
@@ -180,7 +241,7 @@ Vue.component("card", {
             }
 
             let count_of_checked = this.points.filter((point) => point[1]).length;
-            
+
             if (count_of_checked === this.points.length) {
                 this.$emit("to-three", this.name, this.points, this.card_id);
             } else if (count_of_checked >= this.points.length / 2) {

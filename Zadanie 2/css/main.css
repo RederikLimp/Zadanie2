@@ -108,3 +108,11 @@ li{
     padding-bottom: 10px;
     background-color: rgb(69, 65, 65);
   }
+  .clean {
+    width: 5%;
+    border: 1px solid rgb(147, 157, 90);
+    border-radius: 5px;
+    padding-bottom: 10px;
+    background-color: rgb(69, 65, 65);
+    color: chartreuse;
+  }
