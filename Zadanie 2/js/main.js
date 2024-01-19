@@ -263,6 +263,7 @@ Vue.component("card", {
 
         })
     },
+    
     methods: {
         
         updatechecked(point) {
