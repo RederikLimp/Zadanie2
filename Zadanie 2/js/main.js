@@ -203,6 +203,7 @@ computed: {
                 }
             }
         },
+
         toColumnTwo(name,points, card_id,count_of_checked){
             // console.log(name,points)
             // console.log(points)
@@ -312,6 +313,9 @@ Vue.component("card", {
             if ((this.count_of_tasks/2) <= (this.count_of_checked) && (this.count_of_tasks) != (this.count_of_checked)){
                 console.log(this.name)
             this.$emit("to-two",this.name,this.points,this.card_id, this.count_of_checked);
+        }
+        if (this.block) {
+            this.$emit("to-two", this.name, this.points, this.card_id, this.count_of_checked);
         }
             
         })
