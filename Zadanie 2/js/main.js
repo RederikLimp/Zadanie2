@@ -205,9 +205,7 @@ computed: {
         },
 
         toColumnTwo(name,points, card_id,count_of_checked){
-            // console.log(name,points)
-            // console.log(points)
-            // console.log(count_of_checked)
+
             if(this.column2.length==5){
                 this.blockOne = true;
             }
