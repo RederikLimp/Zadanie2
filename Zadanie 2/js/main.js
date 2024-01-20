@@ -50,6 +50,7 @@ Vue.component("board", {
     `,
     data() {
         return {
+            isSecondColumnComplete: false,
             column1: [],
             column2: [],
             column3: [],
@@ -127,7 +128,7 @@ watch:{
 },  
 computed: {
     isSecondColumnFull() {
-      return this.column2.length >= 5;
+        return this.column2.length >= 5;
     },
   },
     methods: {
@@ -163,6 +164,7 @@ computed: {
             if(this.blockOne) {
                 this.errors.push("Блокировка(Лимит)");
             }
+            
             if (this.errors.length === 0) {
                 let info = {
                     name: this.name,
@@ -185,12 +187,13 @@ computed: {
               }
             
               const totalPoints = this.points.length;
-              const checkedPoints = this.points.filter((point) => point[1]).length;
-              const completionPercentage = (checkedPoints / totalPoints) * 100;
-            
-              if (completionPercentage > 50 && this.isSecondColumnFull) {
-                this.errors.push("Первый столбец заблокирован");
-              }
+            const checkedPoints = this.points.filter((point) => point[1]).length;
+            const completionPercentage = (checkedPoints / totalPoints) * 100;
+
+            if (completionPercentage > 50 && this.isSecondColumnFull) {
+            this.errors.push("Первый столбец заблокирован");
+                }
+              
             
               if (this.errors.length === 0) {
                 let info = {
@@ -200,55 +203,57 @@ computed: {
                 }
             }
         },
-        toColumnTwo(name, points, card_id, count_of_checked) {
-            if (this.column2.length >= 5) {
+        toColumnTwo(name,points, card_id,count_of_checked){
+            // console.log(name,points)
+            // console.log(points)
+            // console.log(count_of_checked)
+            if(this.column2.length==5){
                 this.blockOne = true;
-                eventBus.$emit("checkOne", count_of_checked);
-            } else {
-              let info = {
-                name: name,
-                points: points,
-                card_id: card_id,
-                count_of_checked: count_of_checked,
-              };
-              
-              for (let i in this.column1) {
-                if (this.column1[i].card_id == card_id) {
-                  this.column1.splice(i, 1);
-                  break;
+            }
+            else{
+                let info = {
+                    name:name,
+                    points:points,
+                    card_id:card_id,
+                    count_of_checked:count_of_checked
                 }
-              }
-              
-              this.column2.push(info);
+                for(i in this.column1){
+                    
+                    if(this.column1[i].card_id==card_id){
+                        this.column1.splice(i, 1)
+                        break
+                    }
+                }
+                this.column2.push(info)
             }
-            const completionPercentage = (count_of_checked / this.points.length) * 100;
-            if (completionPercentage >= 100) {
-              this.blockOne = false;
-            }
-            let checks = 1;
-            eventBus.$emit("checkTwo", checks);
-          },
-        toColumnThree(name, points, card_id) {
+
+        },
+        toColumnThree(name,points, card_id,now){
             let info = {
-                name: name,
-                points: points,
-                card_id: card_id,
-                dat: new Date(),
-            };
-
-            for (let i in this.column2) {
-                if (this.column2[i].card_id === card_id) {
-                    this.column2.splice(i, 1);
-                    break;
+                name:name,
+                points:points,
+                card_id:card_id,
+                dat:now,
+            }
+            for(i in this.column2){
+                
+                if(this.column2[i].card_id==card_id){
+                    this.column2.splice(i, 1)
+                    break
                 }
             }
 
-            this.column3.push(info);
+            this.column3.push(info)
             this.blockOne =false;
             let checks = 1;
             eventBus.$emit('checkOne',checks)
-                },
-        Clean(){
+
+
+
+
+
+        },
+        Cleen(){
             this.column1=[],
             this.column2=[],
             this.column3=[],
@@ -256,27 +261,46 @@ computed: {
             this.blockOne= false
 
       },
-    },
+    }
 });
 
 Vue.component("card", {
     template: `
-        <div class="card">
-            <h3>{{ name }}</h3>
-            <ul>
-            <li v-for="point in points"><task :pblock="pblock" :block="block" :point="point[0]" :done="point[1]" @checked="updatechecked"></task></li>
-            </ul>
-            <p v-if="dat">{{ dat }}</p>
-        </div>
+<div class="card">
+<h3>{{name}}</h3>
+<ul >
+<li v-for="point in points"><task :block="block" :point="point[0]" :done="point[1]" @checked="updatechecked"></task></li>
+</ul>
+<p>{{dat}}</p>
+</div>
     `,
     data() {
-        return {
-            name: null,
-            points: [],
-        };
+        return{
+        }
+    },
+    methods: {
+
+        updatechecked(point) {
+        this.count_of_checked+=1;
+
+        for(i in this.points){
+            if(this.points[i][0]==point && this.points[i][1] != true){
+                this.points[i][1] = true
+                break
+            }
+        }    
+
+        if ((this.count_of_tasks) == (this.count_of_checked)){
+        var now = new Date() 
+        now = String(now);
+        this.$emit("to-three",this.name,this.points,this.card_id,now);
+        }
+        else if ((this.count_of_tasks/2) <= (this.count_of_checked)){
+        this.$emit("to-two",this.name,this.points,this.card_id, this.count_of_checked);
+        }
+    }
     },
     mounted() {
-
         eventBus.$on('checkOne',checks => {
             this.count_of_checked = 0
             for(i in this.points){
@@ -284,91 +308,47 @@ Vue.component("card", {
                     this.count_of_checked += 1
                 }
             }    
-
+            
             if ((this.count_of_tasks/2) <= (this.count_of_checked) && (this.count_of_tasks) != (this.count_of_checked)){
-                this.$emit("to-two",this.name,this.points,this.card_id, this.count_of_checked);
+                console.log(this.name)
+            this.$emit("to-two",this.name,this.points,this.card_id, this.count_of_checked);
         }
-
+            
         })
     },
-
-    methods: {
-        
-        updatechecked(point) {
-            for (let i in this.points) {
-                if (this.points[i][0] === point && !this.points[i][1]) {
-                    this.points[i][1] = true;
-                    break;
-                }
-            }
-            if ((this.count_of_tasks) == (this.count_of_checked)){
-                var now = new Date() 
-                now = String(now);
-                console.log(this.name,this.points,this.card_id,now)
-                this.$emit("to-three",this.name,this.points,this.card_id,now);
-                }
-                else if ((this.count_of_tasks/2) <= (this.count_of_checked)){
-                this.$emit("to-two",this.name,this.points,this.card_id, this.count_of_checked);
-                }
-
-            let count_of_checked = this.points.filter((point) => point[1]).length;
-
-            if (count_of_checked === this.points.length) {
-                this.$emit("to-three", this.name, this.points, this.card_id);
-            } else if (count_of_checked >= this.points.length / 2) {
-                this.$emit("to-two", this.name, this.points, this.card_id, count_of_checked);
-            }
+    props:{
+        name:{
+            type:String,
+            required:false,
         },
-        updatetwo(point){
-            this.count_of_checked-=1;
-            if(this.column==2 || this.column==1){
-                for(i in this.points){
-                    if(this.points[i][0]==point && this.points[i][1] == true){
-                        this.points[i][1] = false
-                        break
-                    }
-                }
-                if(this.column==2){
-                    if ((this.count_of_tasks/2) > (this.count_of_checked)){
-                        this.$emit("to-one",this.name,this.points,this.card_id, this.count_of_checked);
-    
-                        }
-                }           
-            }
-        },   
-
-    unlockColumnOne() {
-        this.blockOne = false;
-    },
-},
-    props: {
-        name: {
-            type: String,
-            required: true,
+        points:{
+            type:Array,
+            required:false,
         },
-        points: {
-            type: Array,
-            required: true,
+        card_id:{
+            type:Number,
+            required:false,
         },
-        card_id: {
-            type: Number,
-            required: true,
+        count_of_checked:{
+            type:Number,
+            required:false,
         },
-        count_of_checked: {
-            type: Number,
-            required: true,
+        dat:{
+            type:String,
+            required:false,
         },
-        dat: {
-            type: String,
-            required: false,
-        },
-        pblock:{
-            tupe:Boolean,
+        block:{
+            type:Boolean,
             required:false
-        },
+        }
+        
     },
+    computed: {
+        count_of_tasks() {
+          return this.points.length;
+        },
+    }
 });
-
 Vue.component("task", {
     template: `
         <div class="task" 
@@ -417,6 +397,6 @@ Vue.component("task", {
 
 let app = new Vue({
     el: "#app",
-    data: {},
+    data: {},   
     methods: {},
 });
